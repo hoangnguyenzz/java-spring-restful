@@ -1,6 +1,7 @@
 package vn.hoidanit.jobhunter.config;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -32,9 +33,13 @@ public class CustomAuthenticationEntrypoint implements AuthenticationEntryPoint 
         response.setContentType("application/json;charset=UTF-8");
         RestResponse<Object> res = new RestResponse<Object>();
         res.setStatusCode(HttpStatus.UNAUTHORIZED.value());
-        res.setError(authException.getCause().getMessage());
+
+        String errorMessage = Optional.ofNullable(authException.getCause()) // NULL
+                .map(Throwable::getMessage)
+                .orElse(authException.getMessage());
+        res.setError(errorMessage);
+
         res.setMessage("Token không hợp lệ (hết hạn, không đúng định dạng, hoặc không truyền JWT ở header)...");
         mapper.writeValue(response.getWriter(), res);
     }
-
 }
