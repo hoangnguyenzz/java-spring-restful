@@ -18,6 +18,7 @@ import vn.hoidanit.jobhunter.domain.dto.UpdateUserDTO;
 import vn.hoidanit.jobhunter.domain.dto.UserDTO;
 import vn.hoidanit.jobhunter.domain.dto.CreateUserDTO;
 import vn.hoidanit.jobhunter.repository.UserRepository;
+import vn.hoidanit.jobhunter.util.SecurityUtil;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
 
 @Service
@@ -126,6 +127,11 @@ public class UserService {
         return dto;
     }
 
+    public void logout(User user) {
+        user.setRefreshToken(null);
+        this.userRepository.save(user);
+    }
+
     public User handleGetUserByUsername(String username) {
         return this.userRepository.findByEmail(username);
     }
@@ -138,5 +144,22 @@ public class UserService {
                 this.userRepository.save(user);
             }
         }
+    }
+
+    public User fetchUserByRefreshTokenAndEmail(String refresh_token, String email) {
+        return this.userRepository.findByRefreshTokenAndEmail(refresh_token, email);
+    }
+
+    public User getCurrentUserWithToken() throws IdInvalidException {
+        String email = SecurityUtil.getCurrentUserLogin().isPresent()
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
+
+        if (email.equals("")) {
+            throw new IdInvalidException("Access Token không hợp lệ !");
+        }
+        User currentUser = handleGetUserByUsername(email);
+        return currentUser;
+
     }
 }
