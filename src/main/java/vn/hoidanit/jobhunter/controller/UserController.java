@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.turkraft.springfilter.boot.Filter;
 
 import vn.hoidanit.jobhunter.domain.User;
-import vn.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
-import vn.hoidanit.jobhunter.domain.dto.UpdateUserDTO;
-import vn.hoidanit.jobhunter.domain.dto.UserDTO;
-import vn.hoidanit.jobhunter.domain.dto.CreateUserDTO;
+import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
+import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
+import vn.hoidanit.jobhunter.domain.response.ResUserDTO;
+import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
 
@@ -38,7 +38,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) throws IdInvalidException {
+    public ResponseEntity<ResUserDTO> getUser(@PathVariable Long id) throws IdInvalidException {
         if (id >= 1500) {
             throw new IdInvalidException("Id khong lon hown 1501");
         }
@@ -54,14 +54,14 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<CreateUserDTO> createUser(@RequestBody User user) throws IdInvalidException {
+    public ResponseEntity<ResCreateUserDTO> createUser(@RequestBody User user) throws IdInvalidException {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(user));
     }
 
     @PutMapping()
-    public ResponseEntity<UpdateUserDTO> updateUser(@RequestBody User user) throws IdInvalidException {
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User user) throws IdInvalidException {
 
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.updateUser(user));
     }

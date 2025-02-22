@@ -12,11 +12,10 @@ import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.Company;
 import vn.hoidanit.jobhunter.domain.User;
-import vn.hoidanit.jobhunter.domain.dto.Meta;
-import vn.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
-import vn.hoidanit.jobhunter.domain.dto.UpdateUserDTO;
-import vn.hoidanit.jobhunter.domain.dto.UserDTO;
-import vn.hoidanit.jobhunter.domain.dto.CreateUserDTO;
+import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
+import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
+import vn.hoidanit.jobhunter.domain.response.ResUserDTO;
+import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
 import vn.hoidanit.jobhunter.repository.UserRepository;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
@@ -29,7 +28,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public CreateUserDTO createUser(User user) throws IdInvalidException {
+    public ResCreateUserDTO createUser(User user) throws IdInvalidException {
 
         if (this.userRepository.existsByEmail(user.getEmail())) {
             throw new IdInvalidException("Email " + user.getEmail() + " đã tồn tại !");
@@ -37,7 +36,7 @@ public class UserService {
 
         User user1 = this.userRepository.save(user);
 
-        CreateUserDTO userDTO = new CreateUserDTO();
+        ResCreateUserDTO userDTO = new ResCreateUserDTO();
 
         userDTO.setId(user1.getId());
         userDTO.setName(user1.getName());
@@ -54,11 +53,11 @@ public class UserService {
         this.userRepository.deleteById(id);
     }
 
-    public UserDTO getUserById(Long id) throws IdInvalidException {
+    public ResUserDTO getUserById(Long id) throws IdInvalidException {
         User currentUser = this.userRepository.findById(id).orElseThrow(
                 () -> new IdInvalidException("Id " + id + " khong ton tai !"));
 
-        UserDTO dto = new UserDTO();
+        ResUserDTO dto = new ResUserDTO();
         dto.setId(currentUser.getId());
         dto.setName(currentUser.getName());
         dto.setGender(currentUser.getGender());
@@ -76,7 +75,7 @@ public class UserService {
 
         ResultPaginationDTO rs = new ResultPaginationDTO();
 
-        Meta mt = new Meta();
+        ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
 
         mt.setPage(pageUser.getNumber() + 1);
         mt.setPageSize(pageUser.getSize());
@@ -85,9 +84,9 @@ public class UserService {
         rs.setMeta(mt);
 
         List<User> users = pageUser.getContent();
-        List<UserDTO> dtos = new ArrayList<>();
+        List<ResUserDTO> dtos = new ArrayList<>();
         for (User currentUser : users) {
-            UserDTO dto = new UserDTO();
+            ResUserDTO dto = new ResUserDTO();
             dto.setId(currentUser.getId());
             dto.setName(currentUser.getName());
             dto.setGender(currentUser.getGender());
@@ -102,7 +101,7 @@ public class UserService {
         return rs;
     }
 
-    public UpdateUserDTO updateUser(User reqUser) throws IdInvalidException {
+    public ResUpdateUserDTO updateUser(User reqUser) throws IdInvalidException {
 
         User currentUser = this.userRepository.findById(reqUser.getId()).orElseThrow(
                 () -> new IdInvalidException("Id " + reqUser.getId() + " khong ton tai !")
@@ -117,7 +116,7 @@ public class UserService {
         // update
         currentUser = this.userRepository.save(currentUser);
 
-        UpdateUserDTO dto = new UpdateUserDTO();
+        ResUpdateUserDTO dto = new ResUpdateUserDTO();
         dto.setId(currentUser.getId());
         dto.setName(currentUser.getName());
         dto.setGender(currentUser.getGender());
