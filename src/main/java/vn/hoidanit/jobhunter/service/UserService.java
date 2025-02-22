@@ -93,6 +93,7 @@ public class UserService {
             dto.setGender(currentUser.getGender());
             dto.setAddress(currentUser.getAddress());
             dto.setEmail(currentUser.getEmail());
+            dto.setAge(currentUser.getAge());
             dto.setCreatedAt(currentUser.getCreatedAt());
             dto.setUpdatedAt(currentUser.getUpdatedAt());
             dtos.add(dto);

@@ -62,10 +62,10 @@ public class AuthController {
                         ResLoginDTO.InnerResLoginDTO dto = new ResLoginDTO.InnerResLoginDTO(currentUser.getId(),
                                         currentUser.getName(), currentUser.getEmail());
 
-                        res.setUserLogin(dto);
+                        res.setUser(dto);
                 }
                 // access token
-                String access_token = this.securityUtil.createAccessToken(authentication.getName(), res.getUserLogin());
+                String access_token = this.securityUtil.createAccessToken(authentication.getName(), res.getUser());
                 // refresh token
                 String refresh_token = this.securityUtil.createRefreshToken(currentUser.getEmail(), res);
 
@@ -88,17 +88,18 @@ public class AuthController {
         }
 
         @GetMapping("/account")
-        public ResponseEntity<ResLoginDTO.InnerResLoginDTO> getAccount() throws IdInvalidException {
+        public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount() throws IdInvalidException {
                 User currentUser = this.userService.getCurrentUserWithToken();
                 ResLoginDTO.InnerResLoginDTO dto = new ResLoginDTO.InnerResLoginDTO();
+                ResLoginDTO.UserGetAccount res = new ResLoginDTO.UserGetAccount();
                 if (currentUser != null) {
                         dto.setId(currentUser.getId());
                         dto.setName(currentUser.getName());
                         dto.setEmail(currentUser.getEmail());
-
+                        res.setUser(dto);
                 }
 
-                return ResponseEntity.ok().body(dto);
+                return ResponseEntity.ok().body(res);
         }
 
         @GetMapping("/refresh")
@@ -118,10 +119,10 @@ public class AuthController {
                         ResLoginDTO.InnerResLoginDTO dto = new ResLoginDTO.InnerResLoginDTO(currentUser.getId(),
                                         currentUser.getName(), currentUser.getEmail());
 
-                        res.setUserLogin(dto);
+                        res.setUser(dto);
                 }
                 // access token
-                String access_token = this.securityUtil.createAccessToken(currentUser.getEmail(), res.getUserLogin());
+                String access_token = this.securityUtil.createAccessToken(currentUser.getEmail(), res.getUser());
                 // refresh token
                 String new_refresh_token = this.securityUtil.createRefreshToken(currentUser.getEmail(), res);
 
@@ -131,7 +132,7 @@ public class AuthController {
 
                 // set cookies
                 ResponseCookie resCookies = ResponseCookie
-                                .from("new_refresh_token", new_refresh_token)
+                                .from("refresh_token", new_refresh_token)
                                 .httpOnly(true)
                                 .secure(true)
                                 .path("/")
