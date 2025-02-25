@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.Company;
@@ -16,6 +15,7 @@ import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
+import vn.hoidanit.jobhunter.repository.CompanyRepository;
 import vn.hoidanit.jobhunter.repository.UserRepository;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
@@ -24,7 +24,10 @@ import vn.hoidanit.jobhunter.util.error.IdInvalidException;
 public class UserService {
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public final CompanyRepository companyRepository;
+
+    public UserService(UserRepository userRepository, CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
         this.userRepository = userRepository;
     }
 
@@ -32,6 +35,11 @@ public class UserService {
 
         if (this.userRepository.existsByEmail(user.getEmail())) {
             throw new IdInvalidException("Email " + user.getEmail() + " đã tồn tại !");
+        }
+
+        if (user.getCompany() != null) {
+            Optional<Company> company = this.companyRepository.findById(user.getCompany().getId());
+            user.setCompany(company.isPresent() ? company.get() : null);
         }
 
         User user1 = this.userRepository.save(user);
@@ -44,6 +52,8 @@ public class UserService {
         userDTO.setEmail(user1.getEmail());
         userDTO.setAddress(user1.getAddress());
         userDTO.setCreatedAt(user1.getCreatedAt());
+        userDTO.setCompany(user1.getCompany() != null ? new ResCreateUserDTO.CompanyUser(user1.getCompany().getId(),
+                user1.getCompany().getName()) : null);
 
         return userDTO;
 
@@ -65,6 +75,8 @@ public class UserService {
         dto.setEmail(currentUser.getEmail());
         dto.setCreatedAt(currentUser.getCreatedAt());
         dto.setUpdatedAt(currentUser.getUpdatedAt());
+        dto.setCompany(currentUser.getCompany() != null ? new ResUserDTO.CompanyUser(currentUser.getCompany().getId(),
+                currentUser.getCompany().getName()) : null);
 
         return dto;
     }
@@ -95,6 +107,9 @@ public class UserService {
             dto.setAge(currentUser.getAge());
             dto.setCreatedAt(currentUser.getCreatedAt());
             dto.setUpdatedAt(currentUser.getUpdatedAt());
+            dto.setCompany(
+                    currentUser.getCompany() != null ? new ResUserDTO.CompanyUser(currentUser.getCompany().getId(),
+                            currentUser.getCompany().getName()) : null);
             dtos.add(dto);
         }
         rs.setResult(dtos);
@@ -112,7 +127,10 @@ public class UserService {
         currentUser.setName(reqUser.getName());
         currentUser.setGender(reqUser.getGender());
         currentUser.setAddress(reqUser.getAddress());
-
+        if (reqUser.getCompany() != null) {
+            Optional<Company> company = this.companyRepository.findById(reqUser.getCompany().getId());
+            currentUser.setCompany(company.isPresent() ? company.get() : null);
+        }
         // update
         currentUser = this.userRepository.save(currentUser);
 
@@ -123,6 +141,9 @@ public class UserService {
         dto.setAddress(currentUser.getAddress());
         dto.setEmail(currentUser.getEmail());
         dto.setUpdatedAt(currentUser.getUpdatedAt());
+        dto.setCompany(
+                currentUser.getCompany() != null ? new ResUpdateUserDTO.CompanyUser(currentUser.getCompany().getId(),
+                        currentUser.getCompany().getName()) : null);
 
         return dto;
     }

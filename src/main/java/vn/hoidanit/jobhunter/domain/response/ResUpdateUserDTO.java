@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.hoidanit.jobhunter.util.constant.GenderEnum;
 
@@ -25,4 +27,14 @@ public class ResUpdateUserDTO {
     // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant updatedAt;
 
+    private CompanyUser company;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CompanyUser {
+        private long id;
+        private String name;
+    }
 }
