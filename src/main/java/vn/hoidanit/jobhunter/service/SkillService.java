@@ -52,4 +52,13 @@ public class SkillService {
         return rs;
 
     }
+
+    public void deleteSkill(Long id) throws IdInvalidException {
+        Skill skill = this.getSkillById(id);
+
+        skill.getJobs().forEach(job -> {
+            job.getSkills().remove(skill);
+        });
+        this.skillRepository.delete(skill);
+    }
 }
