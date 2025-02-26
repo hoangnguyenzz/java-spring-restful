@@ -26,9 +26,14 @@ public class GlobalException {
     })
     public ResponseEntity<RestResponse<Object>> handleIdException(Exception ex) {
         RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+
         res.setError(ex.getMessage());
         res.setMessage("Exception occurs !! ");
+        if (ex instanceof NoResourceFoundException) {
+            res.setStatusCode(HttpStatus.NOT_FOUND.value());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+        }
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
