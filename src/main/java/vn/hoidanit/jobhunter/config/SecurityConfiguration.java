@@ -35,6 +35,12 @@ public class SecurityConfiguration {
     @Value("${hoidanit.jwt.access-token-validity-in-seconds}")
     private String jwtExpiration;
 
+    String[] whiteList = {
+            "/",
+            "/api/v1/auth/login", "/api/v1/auth/refresh", "/storage/**",
+            "/api/v1/companies/**", "/api/v1/jobs/**"
+    };
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -49,7 +55,7 @@ public class SecurityConfiguration {
 
                 .authorizeHttpRequests(
                         authz -> authz
-                                .requestMatchers("/", "/api/v1/auth/login", "/api/v1/auth/refresh", "/storage/**")
+                                .requestMatchers(whiteList)
                                 .permitAll()
                                 .anyRequest().authenticated())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
