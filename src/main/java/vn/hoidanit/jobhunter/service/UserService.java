@@ -10,12 +10,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.Company;
+import vn.hoidanit.jobhunter.domain.Role;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
 import vn.hoidanit.jobhunter.repository.CompanyRepository;
+import vn.hoidanit.jobhunter.repository.RoleRepository;
 import vn.hoidanit.jobhunter.repository.UserRepository;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
@@ -26,7 +28,11 @@ public class UserService {
 
     public final CompanyRepository companyRepository;
 
-    public UserService(UserRepository userRepository, CompanyRepository companyRepository) {
+    public final RoleRepository roleRepository;
+
+    public UserService(UserRepository userRepository, CompanyRepository companyRepository,
+            RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
         this.companyRepository = companyRepository;
         this.userRepository = userRepository;
     }
@@ -41,6 +47,11 @@ public class UserService {
             Optional<Company> company = this.companyRepository.findById(user.getCompany().getId());
             user.setCompany(company.isPresent() ? company.get() : null);
         }
+        // check role
+        if (user.getRole() != null) {
+            Optional<Role> r = this.roleRepository.findById(user.getRole().getId());
+            user.setRole(r.get() != null ? r.get() : null);
+        }
 
         User user1 = this.userRepository.save(user);
 
@@ -54,7 +65,9 @@ public class UserService {
         userDTO.setCreatedAt(user1.getCreatedAt());
         userDTO.setCompany(user1.getCompany() != null ? new ResCreateUserDTO.CompanyUser(user1.getCompany().getId(),
                 user1.getCompany().getName()) : null);
-
+        userDTO.setRole(user1.getRole() != null
+                ? new ResCreateUserDTO.RoleUser(user1.getRole().getId(), user1.getRole().getName())
+                : null);
         return userDTO;
 
     }
@@ -78,6 +91,8 @@ public class UserService {
         dto.setCompany(currentUser.getCompany() != null ? new ResUserDTO.CompanyUser(currentUser.getCompany().getId(),
                 currentUser.getCompany().getName()) : null);
 
+        dto.setRole(currentUser.getRole() != null ? new ResUserDTO.RoleUser(currentUser.getRole().getId(),
+                currentUser.getRole().getName()) : null);
         return dto;
     }
 
@@ -110,6 +125,8 @@ public class UserService {
             dto.setCompany(
                     currentUser.getCompany() != null ? new ResUserDTO.CompanyUser(currentUser.getCompany().getId(),
                             currentUser.getCompany().getName()) : null);
+            dto.setRole(currentUser.getRole() != null ? new ResUserDTO.RoleUser(currentUser.getRole().getId(),
+                    currentUser.getRole().getName()) : null);
             dtos.add(dto);
         }
         rs.setResult(dtos);
@@ -131,6 +148,10 @@ public class UserService {
             Optional<Company> company = this.companyRepository.findById(reqUser.getCompany().getId());
             currentUser.setCompany(company.isPresent() ? company.get() : null);
         }
+        if (reqUser.getRole() != null) {
+            Optional<Role> role = this.roleRepository.findById(reqUser.getRole().getId());
+            currentUser.setRole(role.isPresent() ? role.get() : null);
+        }
         // update
         currentUser = this.userRepository.save(currentUser);
 
@@ -144,6 +165,8 @@ public class UserService {
         dto.setCompany(
                 currentUser.getCompany() != null ? new ResUpdateUserDTO.CompanyUser(currentUser.getCompany().getId(),
                         currentUser.getCompany().getName()) : null);
+        dto.setRole(currentUser.getRole() != null ? new ResUpdateUserDTO.RoleUser(currentUser.getRole().getId(),
+                currentUser.getRole().getName()) : null);
 
         return dto;
     }
