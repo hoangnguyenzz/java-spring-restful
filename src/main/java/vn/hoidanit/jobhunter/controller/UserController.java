@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.turkraft.springfilter.boot.Filter;
 
+import jakarta.validation.Valid;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
@@ -54,7 +55,7 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<ResCreateUserDTO> createUser(@RequestBody User user) throws IdInvalidException {
+    public ResponseEntity<ResCreateUserDTO> createUser(@Valid @RequestBody User user) throws IdInvalidException {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(user));
