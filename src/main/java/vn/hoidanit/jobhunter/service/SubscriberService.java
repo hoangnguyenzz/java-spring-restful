@@ -103,4 +103,8 @@ public class SubscriberService {
                 job.getSkills().stream().map(
                         skill -> new ResEmailDTO.SkillEmail(skill.getName())).collect(Collectors.toList()));
     }
+
+    public Subscriber findByEmail(String email) {
+        return this.subscriberRepository.findByEmail(email);
+    }
 }
